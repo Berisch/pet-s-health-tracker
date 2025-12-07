@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output (will be built in container)
+dist/
+build/
+.svelte-kit/
+
+# Development files
+*.log
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database (mount as volume instead)
+server/data/*.db
+server/data/*.db-wal
+server/data/*.db-shm
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+plans/

@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-first styles */
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+  @apply bg-gray-100 text-gray-900 antialiased;
+  -webkit-tap-highlight-color: transparent;
+  padding-top: var(--safe-area-inset-top);
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+/* Prevent pull-to-refresh on iOS */
+html {
+  overscroll-behavior: none;
+}
+
+/* Touch-friendly inputs */
+input, select, button {
+  @apply touch-manipulation;
+  min-height: 44px;
+}
+
+/* Card styles */
+.card {
+  @apply bg-white rounded-lg shadow-sm p-4;
+}
+
+/* Status row highlighting */
+.row-highlight-red {
+  @apply bg-red-50 border-l-4 border-status-red;
+}
+
+.row-highlight-orange {
+  @apply bg-orange-50 border-l-4 border-status-orange;
+}
+
+/* Bottom navigation safe area */
+.bottom-nav {
+  padding-bottom: calc(0.5rem + var(--safe-area-inset-bottom));
+}
