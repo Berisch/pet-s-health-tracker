@@ -1,4 +1,4 @@
-import Fastify, { FastifyServerOptions } from 'fastify';
+import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
@@ -21,11 +21,9 @@ import { updateDayStatus, getTrendsSummary, getProblemDays } from './status.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function buildApp(httpsOptions?: { key: Buffer; cert: Buffer }) {
-  const opts: FastifyServerOptions = { logger: true };
-  if (httpsOptions) {
-    opts.https = httpsOptions;
-  }
-  const app = Fastify(opts);
+  const app: FastifyInstance = httpsOptions
+    ? Fastify({ logger: true, https: httpsOptions })
+    : Fastify({ logger: true });
 
   // Register CORS for frontend development
   await app.register(cors, {
