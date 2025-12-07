@@ -4,11 +4,13 @@ services:
   filya:
     build: .
     ports:
-      - "3000:3000"
+      - "443:3000"
     volumes:
       - ./server/data:/app/server/data
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: unless-stopped
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
+      - USE_HTTPS=true
