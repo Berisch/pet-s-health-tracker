@@ -140,6 +140,14 @@ export function initializeDatabase() {
     }
   }
 
+  // Migration: Add removed_at column to medications table
+  const medicationsInfo = db.prepare("PRAGMA table_info(medications)").all() as { name: string }[];
+  const hasRemovedAt = medicationsInfo.some(col => col.name === 'removed_at');
+  if (!hasRemovedAt) {
+    db.exec('ALTER TABLE medications ADD COLUMN removed_at TEXT');
+    console.log('Added removed_at column to medications table');
+  }
+
   console.log('Database initialized successfully');
 }
 
@@ -167,6 +175,8 @@ export interface Medication {
   time_label: string;
   is_active: number;
   sort_order: number;
+  created_at: string;
+  removed_at: string | null;
 }
 
 export interface MedicationEntry {
@@ -236,6 +246,16 @@ export function getMedications(includeInactive = false): Medication[] {
   return db.prepare('SELECT * FROM medications WHERE is_active = 1 ORDER BY sort_order').all() as Medication[];
 }
 
+// Get medications visible on a specific date (considers created_at and removed_at)
+export function getMedicationsForDate(date: string): Medication[] {
+  return db.prepare(`
+    SELECT * FROM medications
+    WHERE date(created_at) <= date(?)
+      AND (removed_at IS NULL OR date(removed_at) > date(?))
+    ORDER BY sort_order
+  `).all(date, date) as Medication[];
+}
+
 // Add medication
 export function addMedication(name: string, timeLabel: string): Medication {
   const maxOrder = db.prepare('SELECT MAX(sort_order) as max FROM medications').get() as { max: number | null };
@@ -247,9 +267,9 @@ export function addMedication(name: string, timeLabel: string): Medication {
   return db.prepare('SELECT * FROM medications WHERE id = ?').get(result.lastInsertRowid) as Medication;
 }
 
-// Deactivate medication (soft delete)
-export function deactivateMedication(id: number) {
-  db.prepare('UPDATE medications SET is_active = 0 WHERE id = ?').run(id);
+// Deactivate medication (soft delete with removal date)
+export function deactivateMedication(id: number, removalDate: string) {
+  db.prepare('UPDATE medications SET is_active = 0, removed_at = ? WHERE id = ?').run(removalDate, id);
 }
 
 // Get medication entries for a date
@@ -327,7 +347,7 @@ export function upsertMealEntry(date: string, mealSlot: number, status: string, 
 // Get full day data (record + medications + meals)
 export function getFullDayData(date: string) {
   const record = getOrCreateDailyRecord(date);
-  const medications = getMedications();
+  const medications = getMedicationsForDate(date);
   const medicationEntries = getMedicationEntries(date);
   const mealConfig = getMealConfig();
   const mealEntries = getMealEntries(date);

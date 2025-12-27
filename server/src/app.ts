@@ -162,10 +162,11 @@ export async function buildApp(httpsOptions?: { key: Buffer; cert: Buffer }) {
     return { success: true };
   });
 
-  // Deactivate medication (soft delete)
-  app.delete<{ Params: { id: string } }>('/api/medications/:id', async (request) => {
+  // Deactivate medication (soft delete with removal date)
+  app.delete<{ Params: { id: string }; Body: { date?: string } }>('/api/medications/:id', async (request) => {
     const { id } = request.params;
-    deactivateMedication(parseInt(id));
+    const date = request.body?.date || new Date().toISOString().split('T')[0];
+    deactivateMedication(parseInt(id), date);
     return { success: true };
   });
 

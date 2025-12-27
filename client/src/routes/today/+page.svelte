@@ -159,11 +159,11 @@
     }
   }
 
-  // Delete medication
+  // Delete medication (removes from current date onwards)
   async function handleDeleteMed(id: number) {
-    if (!confirm('Remove this medication?')) return;
+    if (!confirm('Remove this medication from ' + formatDate(currentDate) + ' onwards?')) return;
     try {
-      await deleteMedication(id);
+      await deleteMedication(id, currentDate);
       await loadData();
     } catch (e) {
       console.error('Failed to delete medication:', e);
@@ -315,7 +315,7 @@
           </button>
         </div>
         <div class="space-y-3">
-          {#each dayData.medications.filter(m => m.is_active) as med}
+          {#each dayData.medications as med}
             <div class="flex items-center justify-between py-2">
               <div class="flex-1">
                 <span>{med.name}</span>

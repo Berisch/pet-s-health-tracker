@@ -126,8 +126,11 @@ export async function addMedication(name: string, timeLabel: string): Promise<Me
   });
 }
 
-export async function deleteMedication(id: number): Promise<void> {
-  await fetchApi(`/medications/${id}`, { method: 'DELETE' });
+export async function deleteMedication(id: number, date: string): Promise<void> {
+  await fetchApi(`/medications/${id}`, {
+    method: 'DELETE',
+    body: JSON.stringify({ date })
+  });
 }
 
 // Meal config
